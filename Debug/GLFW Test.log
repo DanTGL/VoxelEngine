@@ -1,0 +1,14 @@
+﻿  chunk.cpp
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\include\noiseutils.h(1216): warning C4244: 'initializing': conversion from 'const double' to 'float', possible loss of data
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\include\random.h(6): warning C4305: 'initializing': truncation from '__int64' to 'const long'
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\include\random.h(6): warning C4309: 'initializing': truncation of constant value
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\include\random.h(7): warning C4293: '<<': shift count negative or too big, undefined behavior
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\include\frustum.h(12): warning C4091: 'static ': ignored on left of '' when no variable is declared
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\chunk.cpp(175): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\chunk.cpp(351): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\chunk.cpp(352): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\chunk.cpp(356): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\chunk.cpp(360): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\chunk.cpp(406): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\daniel.hajjar\source\repos\opengl\glfw test\chunk.cpp(407): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  GLFW Test.vcxproj -> C:\Users\daniel.hajjar\source\repos\OpenGL\Debug\GLFW Test.exe

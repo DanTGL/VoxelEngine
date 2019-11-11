@@ -1,0 +1,48 @@
+#pragma once
+#ifndef __FONTGEOMETRY_H__
+#define __FONTGEOMETRY_H__
+
+#include <memory>
+#include "VertexTypes.h"
+
+using std::shared_ptr;
+
+class FontGeometry {
+public:
+	FontGeometry(unsigned int textureId, int color, float alpha, unsigned long quads, TexturedVertex* vertices)
+		: textureId(textureId), color(color), alpha(alpha), quads(quads), vertices(vertices) {
+
+	}
+
+	~FontGeometry() {
+		delete[] vertices;
+	}
+
+	const unsigned int& getTextureId() {
+		return textureId;
+	}
+
+	const int& getColor() {
+		return color;
+	}
+
+	const float& getAlpha() {
+		return alpha;
+	}
+
+	const unsigned long& getNrQuads() {
+		return quads;
+	}
+
+	TexturedVertex* getVertices() {
+		return vertices;
+	}
+private:
+	unsigned int textureId;
+	int color;
+	float alpha;
+	unsigned long quads;
+	TexturedVertex* vertices;
+};
+
+#endif
