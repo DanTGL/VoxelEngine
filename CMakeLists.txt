@@ -27,10 +27,5 @@ find_package(glm CONFIG REQUIRED)
 find_package(unofficial-noise CONFIG REQUIRED)
 find_package(unofficial-noiseutils CONFIG REQUIRED)
 
-target_include_directories(VoxelEngine PRIVATE
-    ${GLEW_INCLUDE_DIRS}
-    ${GLFW_INCLUDE_DIRS}
-)
-
 target_link_libraries(VoxelEngine PRIVATE GLEW::glew glfw glm::glm unofficial::noise::noise unofficial::noiseutils::noiseutils)
 
