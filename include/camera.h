@@ -1,7 +1,7 @@
 #pragma once
 
 //#include "renderer.h"
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 class Camera {
 private:

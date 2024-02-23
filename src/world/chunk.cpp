@@ -2,7 +2,7 @@
 
 #include "textures.h"
 
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <noise/noise.h>
 #include "noiseutils.h"
 

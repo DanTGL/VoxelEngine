@@ -1,7 +1,7 @@
 #pragma once
 
 #include "chunk.h"
-#include <glm.hpp>
+#include <glm/glm.hpp>
 #include <map>
 #include "frustum.h"
 #include "noise.h"

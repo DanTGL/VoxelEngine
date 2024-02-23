@@ -1,10 +1,8 @@
-#define GLEW_STATIC
-
 #include <GL\glew.h>
 #include <GLFW/glfw3.h>
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -324,7 +322,7 @@ int main(void) {
 
 	glRotatef(2.0f, 3, 0, 0);
 
-	Shader myShader("shaders/shader.vs", "shaders/shader.fs");
+	Shader myShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
 
 	//Chunk chunk;
 
