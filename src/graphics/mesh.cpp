@@ -7,52 +7,29 @@
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
 	this->vertices = vertices;
 	this->indices = indices;
-	//this->textures = textures;
 
 	setupMesh();
 }
 
-//unsigned char textureNumber = 0;
-
 void Mesh::Render(Shader shader) {
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
-	
-	/*for (unsigned int i = 0; i < textures.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		
-		std::string number = std::to_string(i);
-		std::string name = textures[i].type;
-		/*if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++);*
 
-		shader.setFloat(("texture" + number).c_str(), i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);
-	}*/
+	shader.setInt("textureArray", textures[0].id);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textures[0].id);
 
-		shader.setInt("textureArray", textures[0].id);
-		//shader.setFloat("layer", getLayer(256u, textureNumber));
-		//textureNumber++;
-		glBindTexture(GL_TEXTURE_2D_ARRAY, textures[0].id);
+	glBindVertexArray(VAO);
 
-		//glActiveTexture(GL_TEXTURE0);
+	if (!indices.empty()) {
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	} else {
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	}
 
-		glBindVertexArray(VAO);
-		//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-		if (!indices.empty()) {
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-		} else {
-			glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		}
-
-		glDeleteVertexArrays(1, &VAO);
-		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &EBO);
-		glBindVertexArray(0);
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	glBindVertexArray(0);
 }
 
 void Mesh::setupMesh() {
@@ -63,7 +40,6 @@ void Mesh::setupMesh() {
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	//printf("/n%d", vertices.size());
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
 
@@ -88,7 +64,6 @@ void Mesh::setupMesh() {
 }
 
 void Mesh::GetMeshInformation(size_t &numVerts, size_t &numTriangles) {
-	
 	numVerts = vertices.size();
 	numTriangles = indices.size() / 3;
 }

@@ -326,14 +326,9 @@ void ChunkManager::Render(Shader shader) {
 
 	for (iterator = m_vpChunkRenderList.begin(); iterator != m_vpChunkRenderList.end(); ++iterator) {
 		Chunk* pChunk = (*iterator);
-				//printf("working");
 		if (pChunk->IsLoaded() && pChunk->IsSetup()) {
 			if (pChunk->ShouldRender()) { // Early flags check so we don't always have to do the frustum check...
-				//glPushMatrix();
-				//glTranslatef((pChunk->GetX() * Chunk::CHUNK_SIZE) * BLOCK_RENDER_SIZE, 0, (pChunk->GetZ() * Chunk::CHUNK_SIZE) * BLOCK_RENDER_SIZE);
-				//pChunk->mesh.setupMesh();
 				pChunk->Render(shader);
-				//glPopMatrix();
 			}
 		}
 	}

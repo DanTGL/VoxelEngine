@@ -23,17 +23,15 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
-	
+
 	Mesh() {}
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 	void Render(Shader shader);
 
-	void loadTexture(std::string imagepath);
 	unsigned int AddVertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 texcoord, float layer);
 	void AddTriangle(unsigned int vertex1, unsigned int vertex2, unsigned int vertex3);
 	void setupMesh();
 	void GetMeshInformation(size_t &numVerts, size_t &numTriangles);
 private:
 	unsigned int VAO, VBO, EBO;
-	std::vector<Texture> textures_loaded;
 };

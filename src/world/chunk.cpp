@@ -19,10 +19,8 @@ Chunk::Chunk(ChunkManager* manager) {
 			m_pBlocks[i][j] = new Block[CHUNK_SIZE];
 		}
 	}
-	//printf("%d\n", BlockType_Grass);
 	Texture t;
 	GLuint texture = loadTextureArray("assets/textures/atlas.bmp");
-	//GLuint texture = loadBMP("assets/textures/test2.bmp");
 
 	t.id = texture;
 
@@ -32,19 +30,6 @@ Chunk::Chunk(ChunkManager* manager) {
 	m_loaded = false;
 	m_setup = false;
 
-	/*glActiveTexture(GL_TEXTURE0);
-
-	t.id = texture;
-
-	printf("%d\n", t.id);
-
-	glActiveTexture(GL_TEXTURE1);
-	texture = loadBMP("assets/textures/test.bmp");
-
-	t.id = texture;
-
-	printf("%d\n", t.id);
-	*/
 	SetupSphere();
 	//SetupLandscape();
 }
@@ -104,9 +89,6 @@ void Chunk::CreateMesh() {
 	for (int x = 0; x < CHUNK_SIZE; x++) {
 		for (int y = 0; y < WORLD_HEIGHT; y++) {
 			for (int z = 0; z < CHUNK_SIZE; z++) {
-				/*if (blocks[x][y][z].active == false) {
-					continue;
-				}*/
 				if (m_pBlocks[x][y][z].IsActive() == false) {
 					// Don't create triangle data for inactive blocks
 					continue;
@@ -173,7 +155,6 @@ void Chunk::CreateMesh() {
 				}
 
 				CreateCube(x, y, z, lXNegative, lXPositive, lYNegative, lYPositive, lZNegative, lZPositive);
-				//CreateCube(x, y, z, false, false, false, false, false, false);
 			}
 		}
 	}

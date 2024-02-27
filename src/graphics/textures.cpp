@@ -146,36 +146,9 @@ GLuint loadTextureArray(const char* imagepath) {
 	}
 
 	free(data);
-
-	//glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-
-	/*
-	GLuint texture = 0;
-	GLuint mipLevelCount = 1;
-	GLuint t_width = 16;
-	GLuint t_height = 16;
-	GLuint layerCount = 256;
-
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
-
-	// Allocate the storage
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, mipLevelCount, GL_RGB, t_width, t_height, layerCount);
-
-	// Upload pixel data
-	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, t_width, t_height, layerCount, GL_BGR, GL_UNSIGNED_BYTE, data);
-	*/
-	// Always set reasonable texture parameters
-	/*glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	*/
 	
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	
 	return tileset;
 }
@@ -236,29 +209,6 @@ GLuint* loadTextures(std::string strings[]) {
 		free(data);
 
 	}
-
-	/*
-	GLuint texture = 0;
-	GLuint mipLevelCount = 1;
-	GLuint t_width = 16;
-	GLuint t_height = 16;
-	GLuint layerCount = 256;
-
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
-
-	// Allocate the storage
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, mipLevelCount, GL_RGB, t_width, t_height, layerCount);
-
-	// Upload pixel data
-	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, t_width, t_height, layerCount, GL_BGR, GL_UNSIGNED_BYTE, data);
-	*/
-	// Always set reasonable texture parameters
-	/*glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	*/
 
 	return textures;
 }

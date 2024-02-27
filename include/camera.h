@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "renderer.h"
 #include <glm/glm.hpp>
 
 class Camera {
@@ -9,7 +8,6 @@ private:
 	glm::vec3 m_Front;
 	glm::vec3 m_Pos;
 	glm::mat4 m_viewMatrix;
-	//Renderer* m_renderer;
 public:
 	Camera();
 	~Camera();

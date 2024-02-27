@@ -70,7 +70,6 @@ ImprovedNoise::ImprovedNoise(Random* rnd) {
 }
 
 ImprovedNoise::~ImprovedNoise() {
-	printf("idk\n");
 	free(p);
 }
 
@@ -113,7 +112,6 @@ ImprovedOctaveNoise::ImprovedOctaveNoise(int octaves, Random* rnd) {
 
 ImprovedOctaveNoise::~ImprovedOctaveNoise() {
 	while (!baseNoise.empty()) {
-		printf("test1\n");
 		delete[] baseNoise.front();
 	}
 

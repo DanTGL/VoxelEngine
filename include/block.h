@@ -11,9 +11,7 @@
 #define FACE_LEFT 4
 #define FACE_RIGHT 5
 
-struct BlockPos {
-	int x, y, z;
-};
+typedef glm::ivec3 BlockPos;
 
 enum BlockType {
 	BlockType_Default = 0,

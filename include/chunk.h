@@ -7,17 +7,6 @@
 
 class ChunkManager;
 
-struct block {
-	BlockType type;
-	bool active = false;
-};
-
-typedef struct {
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-	std::vector<Texture> textures;
-} MeshInfo;
-
 class Chunk {
 public:
 	Chunk(ChunkManager* manager);
