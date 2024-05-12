@@ -389,25 +389,25 @@ void Chunk::SetupLandscape(ImprovedCombinedNoise* noise1, ImprovedCombinedNoise*
 			if (result > 1.0) result = 1.0;
 
 			float heightResult = (result * (48 - 1) * 1.0f) * 1.0f;*/
-			float height = heightResult + 32;
-			int dirtThickness = noise1->compute((gridPos.x * CHUNK_SIZE) + x, (gridPos.y * CHUNK_SIZE) + z) / 24 - 4;
-			double dirtTransition = height;
-			double stoneTransition = dirtTransition + dirtThickness;
-			
+			int height = heightResult + 32;
+			double dirtThickness = noise1->compute((gridPos.x * CHUNK_SIZE) + x, (gridPos.y * CHUNK_SIZE) + z) / 24 - 4;
+			int dirtTransition = height;
+			int stoneTransition = dirtTransition + dirtThickness * 3.0;
+
 			//printf("%f\n", heightResult);
 			for (int y = CHUNK_SIZE * (GetY()); y < fmin(height, CHUNK_SIZE * (GetY() + 1)); y++) {
 				BlockType type = BlockType_Default;
 
 				if (y == 0) type = BlockType_Stone;
-				else if (y <= stoneTransition) type = BlockType_Stone;
-				else if (y <= dirtTransition) type = BlockType_Grass;
+				else if (y < stoneTransition) type = BlockType_Stone;
+				else if (y == height - 1) type = BlockType_Grass;
+				else if (y < dirtTransition) type = BlockType_Dirt;
+
 				if (type != BlockType_Default) {
 					m_pBlocks[x][y % CHUNK_SIZE][z].SetActive(true);
 					m_pBlocks[x][y % CHUNK_SIZE][z].m_blockType = type;
 				}
 			}
-
-
 			
 
 

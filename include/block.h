@@ -32,7 +32,7 @@ static const float textures[BlockType_NumTypes][6] = {
 	{ getLayer(256u, 240u), getLayer(256u, 242u), getLayer(256u, 243u), getLayer(256u, 243u), getLayer(256u, 243u), getLayer(256u, 243u) },
 	{ getLayer(256u, 242u), getLayer(256u, 242u), getLayer(256u, 242u), getLayer(256u, 242u), getLayer(256u, 242u), getLayer(256u, 242u) },
 	{ getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u) },
-	{ getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u) },
+	{ getLayer(256u, 241u), getLayer(256u, 241u), getLayer(256u, 241u), getLayer(256u, 241u), getLayer(256u, 241u), getLayer(256u, 241u) },
 	{ getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u) },
 	{ getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u) },
 	{ getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u), getLayer(256u, 240u) },
