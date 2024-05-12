@@ -13,9 +13,9 @@ Chunk::Chunk(ChunkManager* manager) {
 	// Create the blocks
 	m_pBlocks = new Block**[CHUNK_SIZE];
 	for (int i = 0; i < CHUNK_SIZE; i++) {
-		m_pBlocks[i] = new Block*[WORLD_HEIGHT];
+		m_pBlocks[i] = new Block*[CHUNK_SIZE];
 
-		for (int j = 0; j < WORLD_HEIGHT; j++) {
+		for (int j = 0; j < CHUNK_SIZE; j++) {
 			m_pBlocks[i][j] = new Block[CHUNK_SIZE];
 		}
 	}
@@ -30,14 +30,14 @@ Chunk::Chunk(ChunkManager* manager) {
 	m_loaded = false;
 	m_setup = false;
 
-	SetupSphere();
+	//SetupSphere();
 	//SetupLandscape();
 }
 
 Chunk::~Chunk() {
 	// Delete the blocks
 	for (int i = 0; i < CHUNK_SIZE; ++i) {
-		for (int j = 0; j < WORLD_HEIGHT; ++j) {
+		for (int j = 0; j < CHUNK_SIZE; ++j) {
 			delete[] m_pBlocks[i][j];
 		}
 		delete[] m_pBlocks[i];
@@ -68,7 +68,7 @@ void Chunk::Render(Shader shader) {
 	if (!mesh.vertices.empty()) {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(GetX() * Chunk::CHUNK_SIZE, -20, GetZ() * Chunk::CHUNK_SIZE));
+		model = glm::translate(model, glm::vec3(GetX() * Chunk::CHUNK_SIZE, GetY() * Chunk::CHUNK_SIZE, GetZ() * Chunk::CHUNK_SIZE));
 
 		int modelLoc = glGetUniformLocation(shader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -86,9 +86,9 @@ void Chunk::CreateMesh() {
 	mesh.vertices.clear();
 	bool lDefault = true;
 
-	for (int x = 0; x < CHUNK_SIZE; x++) {
-		for (int y = 0; y < WORLD_HEIGHT; y++) {
-			for (int z = 0; z < CHUNK_SIZE; z++) {
+	for (uint8_t x = 0; x < CHUNK_SIZE; x++) {
+		for (uint8_t y = 0; y < CHUNK_SIZE; y++) {
+			for (uint8_t z = 0; z < CHUNK_SIZE; z++) {
 				if (m_pBlocks[x][y][z].IsActive() == false) {
 					// Don't create triangle data for inactive blocks
 					continue;
@@ -99,8 +99,8 @@ void Chunk::CreateMesh() {
 					lXNegative = m_pBlocks[x - 1][y][z].IsActive();
 				}
 
-				if (x == 0 && this->m_pManager->GetChunk(this->GetX() - 1, this->GetZ()) != NULL) {
-					lXNegative = this->m_pManager->GetChunk(this->GetX() - 1, this->GetZ())->m_pBlocks[CHUNK_SIZE - 1][y][z].IsActive();
+				if (x == 0 && this->m_pManager->GetChunk(this->GetX() - 1, this->GetY(), this->GetZ()) != NULL) {
+					lXNegative = this->m_pManager->GetChunk(this->GetX() - 1, this->GetY(), this->GetZ())->m_pBlocks[CHUNK_SIZE - 1][y][z].IsActive();
 				}
 
 				if (x == 0) {
@@ -112,8 +112,8 @@ void Chunk::CreateMesh() {
 					lXPositive = m_pBlocks[x + 1][y][z].IsActive();
 				}
 
-				if (x == CHUNK_SIZE - 1 && this->m_pManager->GetChunk(this->GetX() + 1, this->GetZ()) != NULL) {
-					lXPositive = this->m_pManager->GetChunk(this->GetX() + 1, this->GetZ())->m_pBlocks[0][y][z].IsActive();
+				if (x == CHUNK_SIZE - 1 && this->m_pManager->GetChunk(this->GetX() + 1, this->GetY(), this->GetZ()) != NULL) {
+					lXPositive = this->m_pManager->GetChunk(this->GetX() + 1, this->GetY(), this->GetZ())->m_pBlocks[0][y][z].IsActive();
 				}
 
 				if (x == CHUNK_SIZE - 1) {
@@ -125,7 +125,7 @@ void Chunk::CreateMesh() {
 					lYNegative = m_pBlocks[x][y - 1][z].IsActive();
 
 				bool lYPositive = lDefault;
-				if (y < WORLD_HEIGHT - 1)
+				if (y < CHUNK_SIZE - 1)
 					lYPositive = m_pBlocks[x][y + 1][z].IsActive();
 
 				bool lZNegative = lDefault;
@@ -133,8 +133,8 @@ void Chunk::CreateMesh() {
 					lZNegative = m_pBlocks[x][y][z - 1].IsActive();
 				}
 
-				if (z == 0 && this->m_pManager->GetChunk(this->GetX(), this->GetZ() - 1) != NULL) {
-					lZNegative = this->m_pManager->GetChunk(this->GetX(), this->GetZ() - 1)->m_pBlocks[x][y][CHUNK_SIZE - 1].IsActive();
+				if (z == 0 && this->m_pManager->GetChunk(this->GetX(), this->GetY(), this->GetZ() - 1) != NULL) {
+					lZNegative = this->m_pManager->GetChunk(this->GetX(), this->GetY(), this->GetZ() - 1)->m_pBlocks[x][y][CHUNK_SIZE - 1].IsActive();
 				}
 
 				if (z == 0) {
@@ -146,8 +146,8 @@ void Chunk::CreateMesh() {
 					lZPositive = m_pBlocks[x][y][z + 1].IsActive();
 				}
 
-				if (z == CHUNK_SIZE - 1 && this->m_pManager->GetChunk(this->GetX(), this->GetZ() + 1) != NULL) {
-					lZPositive = this->m_pManager->GetChunk(this->GetX(), this->GetZ() + 1)->m_pBlocks[x][y][0].IsActive();
+				if (z == CHUNK_SIZE - 1 && this->m_pManager->GetChunk(this->GetX(), this->GetY(), this->GetZ() + 1) != NULL) {
+					lZPositive = this->m_pManager->GetChunk(this->GetX(), this->GetY(), this->GetZ() + 1)->m_pBlocks[x][y][0].IsActive();
 				}
 
 				if (z == CHUNK_SIZE - 1) {
@@ -159,18 +159,20 @@ void Chunk::CreateMesh() {
 		}
 	}
 
-	mesh.setupMesh();
+	if (mesh.vertices.size() > 0) {
+		mesh.setupMesh();
+	}
 }
 
-void Chunk::CreateCube(float x, float y, float z, bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive) {
-	glm::vec3 p1(x - BLOCK_RENDER_SIZE, y - BLOCK_RENDER_SIZE, z + BLOCK_RENDER_SIZE);
-	glm::vec3 p2(x + BLOCK_RENDER_SIZE, y - BLOCK_RENDER_SIZE, z + BLOCK_RENDER_SIZE);
-	glm::vec3 p3(x + BLOCK_RENDER_SIZE, y + BLOCK_RENDER_SIZE, z + BLOCK_RENDER_SIZE);
-	glm::vec3 p4(x - BLOCK_RENDER_SIZE, y + BLOCK_RENDER_SIZE, z + BLOCK_RENDER_SIZE);
-	glm::vec3 p5(x + BLOCK_RENDER_SIZE, y - BLOCK_RENDER_SIZE, z - BLOCK_RENDER_SIZE);
-	glm::vec3 p6(x - BLOCK_RENDER_SIZE, y - BLOCK_RENDER_SIZE, z - BLOCK_RENDER_SIZE);
-	glm::vec3 p7(x - BLOCK_RENDER_SIZE, y + BLOCK_RENDER_SIZE, z - BLOCK_RENDER_SIZE);
-	glm::vec3 p8(x + BLOCK_RENDER_SIZE, y + BLOCK_RENDER_SIZE, z - BLOCK_RENDER_SIZE);
+void Chunk::CreateCube(uint8_t x, uint8_t y, uint8_t z, bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive) {
+	ChunkBlockPos_t p1(x, y, z + 1);
+	ChunkBlockPos_t p2(x + 1, y, z + 1);
+	ChunkBlockPos_t p3(x + 1, y + 1, z + 1);
+	ChunkBlockPos_t p4(x, y + 1, z + 1);
+	ChunkBlockPos_t p5(x + 1, y, z);
+	ChunkBlockPos_t p6(x, y, z);
+	ChunkBlockPos_t p7(x, y + 1, z);
+	ChunkBlockPos_t p8(x + 1, y + 1, z);
 
 	glm::vec3 n1;
 
@@ -187,10 +189,10 @@ void Chunk::CreateCube(float x, float y, float z, bool xNegative, bool xPositive
 
 		n1 = glm::vec3(0.0f, 0.0f, 1.0f);
 
-		v1 = mesh.AddVertex(p1, n1, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_FRONT]);
-		v2 = mesh.AddVertex(p2, n1, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_FRONT]);
-		v3 = mesh.AddVertex(p3, n1, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_FRONT]);
-		v4 = mesh.AddVertex(p4, n1, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_FRONT]);
+		v1 = mesh.AddVertex(p1, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_FRONT]);
+		v2 = mesh.AddVertex(p2, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_FRONT]);
+		v3 = mesh.AddVertex(p3, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_FRONT]);
+		v4 = mesh.AddVertex(p4, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_FRONT]);
 
 		mesh.AddTriangle(v1, v2, v3);
 		mesh.AddTriangle(v1, v3, v4);
@@ -202,10 +204,10 @@ void Chunk::CreateCube(float x, float y, float z, bool xNegative, bool xPositive
 	if (!zNegative) {
 		n1 = glm::vec3(0.0f, 0.0f, -1.0f);
 
-		v5 = mesh.AddVertex(p5, n1, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BACK]);
-		v6 = mesh.AddVertex(p6, n1, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BACK]);
-		v7 = mesh.AddVertex(p7, n1, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BACK]);
-		v8 = mesh.AddVertex(p8, n1, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BACK]);
+		v5 = mesh.AddVertex(p5, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BACK]);
+		v6 = mesh.AddVertex(p6, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BACK]);
+		v7 = mesh.AddVertex(p7, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BACK]);
+		v8 = mesh.AddVertex(p8, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BACK]);
 
 		mesh.AddTriangle(v5, v6, v7);
 		mesh.AddTriangle(v5, v7, v8);
@@ -216,10 +218,10 @@ void Chunk::CreateCube(float x, float y, float z, bool xNegative, bool xPositive
 	if (!xPositive) {
 		n1 = glm::vec3(1.0f, 0.0f, 0.0f);
 
-		v2 = mesh.AddVertex(p2, n1, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_RIGHT]);
-		v5 = mesh.AddVertex(p5, n1, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_RIGHT]);
-		v8 = mesh.AddVertex(p8, n1, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_RIGHT]);
-		v3 = mesh.AddVertex(p3, n1, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_RIGHT]);
+		v2 = mesh.AddVertex(p2, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_RIGHT]);
+		v5 = mesh.AddVertex(p5, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_RIGHT]);
+		v8 = mesh.AddVertex(p8, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_RIGHT]);
+		v3 = mesh.AddVertex(p3, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_RIGHT]);
 
 		mesh.AddTriangle(v2, v5, v8);
 		mesh.AddTriangle(v2, v8, v3);
@@ -229,10 +231,10 @@ void Chunk::CreateCube(float x, float y, float z, bool xNegative, bool xPositive
 	if (!xNegative) {
 		n1 = glm::vec3(-1.0f, 0.0f, 0.0f);
 
-		v6 = mesh.AddVertex(p6, n1, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_LEFT]);
-		v1 = mesh.AddVertex(p1, n1, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_LEFT]);
-		v4 = mesh.AddVertex(p4, n1, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_LEFT]);
-		v7 = mesh.AddVertex(p7, n1, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_LEFT]);
+		v6 = mesh.AddVertex(p6, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_LEFT]);
+		v1 = mesh.AddVertex(p1, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_LEFT]);
+		v4 = mesh.AddVertex(p4, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_LEFT]);
+		v7 = mesh.AddVertex(p7, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_LEFT]);
 
 		mesh.AddTriangle(v6, v1, v4);
 		mesh.AddTriangle(v6, v4, v7);
@@ -243,10 +245,10 @@ void Chunk::CreateCube(float x, float y, float z, bool xNegative, bool xPositive
 	if (!yPositive) {
 		n1 = glm::vec3(0.0f, 1.0f, 0.0f);
 
-		v4 = mesh.AddVertex(p4, n1, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_TOP]);
-		v3 = mesh.AddVertex(p3, n1, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_TOP]);
-		v8 = mesh.AddVertex(p8, n1, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_TOP]);
-		v7 = mesh.AddVertex(p7, n1, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_TOP]);
+		v4 = mesh.AddVertex(p4, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_TOP]);
+		v3 = mesh.AddVertex(p3, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_TOP]);
+		v8 = mesh.AddVertex(p8, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_TOP]);
+		v7 = mesh.AddVertex(p7, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_TOP]);
 
 		mesh.AddTriangle(v4, v3, v8);
 		mesh.AddTriangle(v4, v8, v7);
@@ -257,10 +259,10 @@ void Chunk::CreateCube(float x, float y, float z, bool xNegative, bool xPositive
 	if (!yNegative) {
 		n1 = glm::vec3(0.0f, -1.0f, 0.0f);
 
-		v6 = mesh.AddVertex(p6, n1, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BOTTOM]);
-		v5 = mesh.AddVertex(p5, n1, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BOTTOM]);
-		v2 = mesh.AddVertex(p2, n1, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BOTTOM]);
-		v1 = mesh.AddVertex(p1, n1, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BOTTOM]);
+		v6 = mesh.AddVertex(p6, texCoord1, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BOTTOM]);
+		v5 = mesh.AddVertex(p5, texCoord2, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BOTTOM]);
+		v2 = mesh.AddVertex(p2, texCoord3, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BOTTOM]);
+		v1 = mesh.AddVertex(p1, texCoord4, textures[m_pBlocks[(int)x][(int)y][(int)z].m_blockType][FACE_BOTTOM]);
 
 		mesh.AddTriangle(v6, v5, v2);
 		mesh.AddTriangle(v6, v2, v1);
@@ -324,24 +326,27 @@ void Chunk::Update() {
 
 }
 
-void Chunk::SetPosition(glm::vec2 pos) {
+void Chunk::SetPosition(glm::vec3 pos) {
 	worldPos = pos;
 }
 
-void Chunk::SetGrid(int gridX, int gridZ) {
-	gridPos.x = gridX;
-	gridPos.y = gridZ;
+void Chunk::SetGrid(ChunkCoord coord) {
+	gridPos = coord;
 }
 
 int Chunk::GetX() {
 	return gridPos.x;
 }
 
-int Chunk::GetZ() {
+int Chunk::GetY() {
 	return gridPos.y;
 }
 
-glm::vec2 Chunk::GetPosition() {
+int Chunk::GetZ() {
+	return gridPos.z;
+}
+
+glm::vec3 Chunk::GetPosition() {
 	return worldPos;
 }
 
@@ -354,12 +359,12 @@ void Chunk::SetupLandscape(ImprovedCombinedNoise* noise1, ImprovedCombinedNoise*
 	for (int z = 0; z < CHUNK_SIZE; z++) {
 		for (int x = 0; x < CHUNK_SIZE; x++) {
 			double heightResult = 0;
-			double heightLow = noise1->compute(((gridPos.x * CHUNK_SIZE) + x) * 1.3, ((gridPos.y * CHUNK_SIZE) + z) * 1.3) / 6 - 4;
-			double heightHigh = noise2->compute(((gridPos.x * CHUNK_SIZE) + x) * 1.3, ((gridPos.y * CHUNK_SIZE) + z) * 1.3) / 5 + 6;
+			double heightLow = noise1->compute(((gridPos.x * CHUNK_SIZE) + x) * 1.3, ((gridPos.z * CHUNK_SIZE) + z) * 1.3) / 6 - 4;
+			double heightHigh = noise2->compute(((gridPos.x * CHUNK_SIZE) + x) * 1.3, ((gridPos.z * CHUNK_SIZE) + z) * 1.3) / 5 + 6;
 
 			//printf("%d", heightHigh);
 
-			if (noise3->compute((gridPos.x * CHUNK_SIZE) + x, (gridPos.y * CHUNK_SIZE) + z) / 8 > 0) {
+			if (noise3->compute((gridPos.x * CHUNK_SIZE) + x, (gridPos.z * CHUNK_SIZE) + z) / 8 > 0) {
 				heightResult = heightLow;
 			} else {
 				heightResult = std::fmax(heightLow, heightHigh);
@@ -390,15 +395,15 @@ void Chunk::SetupLandscape(ImprovedCombinedNoise* noise1, ImprovedCombinedNoise*
 			double stoneTransition = dirtTransition + dirtThickness;
 			
 			//printf("%f\n", heightResult);
-			for (int y = 0; y < height; y++) {
+			for (int y = CHUNK_SIZE * (GetY()); y < fmin(height, CHUNK_SIZE * (GetY() + 1)); y++) {
 				BlockType type = BlockType_Default;
 
 				if (y == 0) type = BlockType_Stone;
 				else if (y <= stoneTransition) type = BlockType_Stone;
 				else if (y <= dirtTransition) type = BlockType_Grass;
 				if (type != BlockType_Default) {
-					m_pBlocks[x][y][z].SetActive(true);
-					m_pBlocks[x][y][z].m_blockType = type;
+					m_pBlocks[x][y % CHUNK_SIZE][z].SetActive(true);
+					m_pBlocks[x][y % CHUNK_SIZE][z].m_blockType = type;
 				}
 			}
 

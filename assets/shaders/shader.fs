@@ -3,7 +3,6 @@ out vec4 FragColor;
 in float layer;
 
 in vec2 TexCoords;
-in vec2 uv;
 
 uniform sampler2DArray texarray;
 

@@ -141,30 +141,30 @@ void ChunkManager::UpdateRebuildList() {
 				m_vpChunkUpdateFlagsList.push_back(pChunk);
 
 				// Also add our neighbours since they might now be surrounded too (If we have neighbours)
-				Chunk* pChunkXMinus = GetChunk(pChunk->GetX() - 1, pChunk->GetZ());
-				Chunk* pChunkXPlus = GetChunk(pChunk->GetX() + 1, pChunk->GetZ());
-				//Chunk* pChunkYMinus = GetChunk(pChunk->GetX(), pChunk->GetZ());
-				//Chunk* pChunkYPlus = GetChunk(pChunk->GetX(), pChunk->GetZ());
-				Chunk* pChunkZMinus = GetChunk(pChunk->GetX(), pChunk->GetZ() - 1);
-				Chunk* pChunkZPlus = GetChunk(pChunk->GetX(), pChunk->GetZ() + 1);
+				/*Chunk* pChunkXMinus = GetChunk(pChunk->GetX() - 1, pChunk->GetY(), pChunk->GetZ());
+				Chunk* pChunkXPlus = GetChunk(pChunk->GetX() + 1, pChunk->GetY(), pChunk->GetZ());
+				Chunk* pChunkYMinus = GetChunk(pChunk->GetX(), pChunk->GetY() - 1, pChunk->GetZ());
+				Chunk* pChunkYPlus = GetChunk(pChunk->GetX(), pChunk->GetY() + 1, pChunk->GetZ());
+				Chunk* pChunkZMinus = GetChunk(pChunk->GetX(), pChunk->GetY(), pChunk->GetZ() - 1);
+				Chunk* pChunkZPlus = GetChunk(pChunk->GetX(), pChunk->GetY(), pChunk->GetZ() + 1);
 
 				if (pChunkXMinus != NULL)
 					m_vpChunkUpdateFlagsList.push_back(pChunkXMinus);
 
 				if (pChunkXPlus != NULL)
 					m_vpChunkUpdateFlagsList.push_back(pChunkXPlus);
-				/*
+				
 				if (pChunkYMinus != NULL)
 					m_vpChunkUpdateFlagsList.push_back(pChunkYMinus);
 
 				if (pChunkYPlus != NULL)
-					m_vpChunkUpdateFlagsList.push_back(pChunkYPlus);*/
+					m_vpChunkUpdateFlagsList.push_back(pChunkYPlus);
 
 				if (pChunkZMinus != NULL)
 					m_vpChunkUpdateFlagsList.push_back(pChunkZMinus);
 
 				if (pChunkZPlus != NULL)
-					m_vpChunkUpdateFlagsList.push_back(pChunkZPlus);
+					m_vpChunkUpdateFlagsList.push_back(pChunkZPlus);*/
 
 				// Only rebuild a certain number of chunks per frame
 				lNumRebuiltChunkThisFrame++;
@@ -210,24 +210,23 @@ void ChunkManager::UpdateUnloadList() {
 	m_vpChunkUnloadList.clear();
 }
 
-//Chunk* lastChunk;
-Chunk* lastChunk;
-
 void ChunkManager::UpdateVisibilityList(glm::vec3 cameraPosition) {
 	Chunk* chunk;
 	
-	int gridX = (int)((cameraPosition.x + BLOCK_RENDER_SIZE) / Chunk::CHUNK_SIZE);
-	int gridY = (int)((cameraPosition.y + BLOCK_RENDER_SIZE) / Chunk::CHUNK_SIZE);
-	int gridZ = (int)((cameraPosition.z + BLOCK_RENDER_SIZE) / Chunk::CHUNK_SIZE);
+	int gridX = (int)((cameraPosition.x) / Chunk::CHUNK_SIZE);
+	int gridY = (int)((cameraPosition.y) / Chunk::CHUNK_SIZE);
+	int gridZ = (int)((cameraPosition.z) / Chunk::CHUNK_SIZE);
+
+	ChunkCoord gridCoord = ChunkCoord(glm::vec3(cameraPosition) / (float)Chunk::CHUNK_SIZE);
 
 	//printf("cx: %d, cy: %d\n", gridX, gridZ);
 
-	chunk = GetChunk(gridX, gridZ);
+	//chunk = GetChunk(gridX, gridY, gridZ);
 
-	if (m_forceVisibilityUpdate || m_chunkMap.empty() || chunk != lastChunk) {
+	if (m_forceVisibilityUpdate || m_chunkMap.empty() || gridCoord != m_lastCoord) {
 		
 
-		lastChunk = chunk;
+		m_lastCoord = gridCoord;
 
 		//std::copy(m_vpChunkVisibilityList.begin(), m_vpChunkVisibilityList.end(), std::back_inserter(m_vpChunkUnloadList));
 
@@ -240,19 +239,21 @@ void ChunkManager::UpdateVisibilityList(glm::vec3 cameraPosition) {
 		if (cameraPosition.z <= -0.5f)
 			gridZ -= 1;
 
-		UpdateVisibility(gridX, gridZ);
-		UpdateVisibility(gridX - 1, gridZ);
-		UpdateVisibility(gridX + 1, gridZ);
-		UpdateVisibility(gridX, gridZ - 1);
-		UpdateVisibility(gridX, gridZ + 1);
 
-		Chunk* curChunk = GetChunk(gridX, gridZ);
-		Chunk* pChunkXMinus = GetChunk(gridX - 1, gridZ);
-		Chunk* pChunkXPlus = GetChunk(gridX + 1, gridZ);
+		for (int y = -1; y <= 1; y++) {
+			for (int z = -3; z <= 3; z++) {
+				for (int x = -3; x <= 3; x++) {
+					UpdateVisibility(gridCoord + ChunkCoord(x, y, z));
+				}
+			}
+		}
+		//Chunk* curChunk = GetChunk(gridX, gridZ);
+		//Chunk* pChunkXMinus = GetChunk(gridX - 1, gridZ);
+		//Chunk* pChunkXPlus = GetChunk(gridX + 1, gridZ);
 		//Chunk* pChunkYMinus = GetChunk(gridX, gridY - 1, gridZ);
 		//Chunk* pChunkYPlus = GetChunk(gridX, gridY + 1, gridZ);
-		Chunk* pChunkZMinus = GetChunk(gridX, gridZ - 1);
-		Chunk* pChunkZPlus = GetChunk(gridX, gridZ + 1);
+		//Chunk* pChunkZMinus = GetChunk(gridX, gridZ - 1);
+		//Chunk* pChunkZPlus = GetChunk(gridX, gridZ + 1);
 
 		/*std::vector<Chunk*>::iterator iterator;
 		for (iterator = m_vpChunkUnloadList.begin(); iterator != m_vpChunkUnloadList.end();) {
@@ -270,12 +271,14 @@ void ChunkManager::UpdateVisibilityList(glm::vec3 cameraPosition) {
 	}
 }
 
-void ChunkManager::UpdateVisibility(int gridX, int gridZ) {
-	if (GetChunk(gridX, gridZ) == NULL) {
-		CreateChunk(gridX, gridZ);
+void ChunkManager::UpdateVisibility(ChunkCoord coord) {
+	if (coord.y < 0 || coord.y >= NUM_CHUNKS_Y) return;
+
+	if (GetChunk(coord) == NULL) {
+		CreateChunk(coord);
 	}
 
-	Chunk* pChunk = GetChunk(gridX, gridZ);
+	Chunk* pChunk = GetChunk(coord);
 
 	if (!pChunk->IsLoaded()) {
 		m_vpChunkAsyncList.push_back(pChunk);
@@ -303,13 +306,13 @@ void ChunkManager::UpdateRenderList() {
 				if (pChunk->ShouldRender()) {	// Early flags check so we don't always have to do the frustum check...
 					// Check if this chunk is inside the camera frustum
 				//printf("n");
-					float c_offset = (Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE) - BLOCK_RENDER_SIZE;
-					glm::vec2 chunkCenter = pChunk->GetPosition() + glm::vec2(c_offset, c_offset);
-					float c_heightoffset = (Chunk::WORLD_HEIGHT * BLOCK_RENDER_SIZE) - BLOCK_RENDER_SIZE;
+					//float c_offset = (Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE) - BLOCK_RENDER_SIZE;
+					//glm::vec2 chunkCenter = pChunk->GetPosition() + glm::vec2(c_offset, ,c_offset);
+					//float c_heightoffset = (Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE) - BLOCK_RENDER_SIZE;
 					
-					float c_size = Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE;
-					float c_height = Chunk::WORLD_HEIGHT * BLOCK_RENDER_SIZE;
-					glm::vec3 center(chunkCenter.x, c_heightoffset, chunkCenter.y);
+					//float c_size = Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE;
+					//float c_height = Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE;
+					//glm::vec3 center(chunkCenter.x, c_heightoffset, chunkCenter.y);
 					//if (m_Frustum->CubeInFrustum(center, c_size, c_height, c_size)) {
 						m_vpChunkRenderList.push_back(pChunk);
 					//}
@@ -334,39 +337,29 @@ void ChunkManager::Render(Shader shader) {
 	}
 }
 
-void ChunkManager::CreateChunk(int x, int z) {
-	ChunkCoord coord;
-	coord.x = x;
-	coord.z = z;
-
-	utils::NoiseMap heightMap;
+void ChunkManager::CreateChunk(ChunkCoord coord) {
+	/*utils::NoiseMap heightMap;
 	utils::NoiseMapBuilderPlane heightMapBuilder;
 	heightMapBuilder.SetSourceModule(m_noiseModule);
 	heightMapBuilder.SetDestNoiseMap(heightMap);
 	heightMapBuilder.SetDestSize(Chunk::CHUNK_SIZE, Chunk::CHUNK_SIZE);
-	heightMapBuilder.SetBounds(x * Chunk::CHUNK_SIZE, (x * Chunk::CHUNK_SIZE) + Chunk::CHUNK_SIZE - 1, z * Chunk::CHUNK_SIZE, (z * Chunk::CHUNK_SIZE) + Chunk::CHUNK_SIZE - 1);
-	heightMapBuilder.Build();
+	heightMapBuilder.SetBounds(coord.x * Chunk::CHUNK_SIZE, (coord.x * Chunk::CHUNK_SIZE) + Chunk::CHUNK_SIZE - 1, coord.z * Chunk::CHUNK_SIZE, (coord.z * Chunk::CHUNK_SIZE) + Chunk::CHUNK_SIZE - 1);
+	heightMapBuilder.Build();*/
 
 	Chunk* pNewChunk = new Chunk(this);
 
-	float xPos = x * (Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE*2.0f);
-	float zPos = z * (Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE*2.0f);
+	//float xPos = coord.x * (Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE*2.0f);
+	//float zPos = coord.z * (Chunk::CHUNK_SIZE * BLOCK_RENDER_SIZE*2.0f);
 
-	pNewChunk->SetPosition(glm::vec2(xPos, zPos));
-	pNewChunk->SetGrid(coord.x, coord.z);
+	pNewChunk->SetPosition(glm::vec3(coord) * ((float)Chunk::CHUNK_SIZE));
+	pNewChunk->SetGrid(coord);
 	pNewChunk->SetupLandscape(noise1, noise2, noise3);
 
 	m_chunkMap[coord] = pNewChunk;
-
-
 }
 
-Chunk* ChunkManager::GetChunk(int x, int z) {
-	ChunkCoord coord;
-	coord.x = x;
-	coord.z = z;
-
-	std::map<ChunkCoord, Chunk*>::iterator iterator = m_chunkMap.find(coord);
+Chunk* ChunkManager::GetChunk(ChunkCoord coord) {
+	auto iterator = m_chunkMap.find(coord);
 	if (iterator != m_chunkMap.end()) {
 		Chunk* lpReturn = m_chunkMap[coord];
 		return lpReturn;
@@ -375,32 +368,29 @@ Chunk* ChunkManager::GetChunk(int x, int z) {
 	return NULL;
 }
 
-Chunk* ChunkManager::GetChunkFromPosition(float posX, float posZ) {
-	int gridX = (int)((posX + BLOCK_RENDER_SIZE) / Chunk::CHUNK_SIZE);
-	int gridZ = (int)((posZ + BLOCK_RENDER_SIZE) / Chunk::CHUNK_SIZE);
+Chunk* ChunkManager::GetChunkFromPosition(glm::vec3 pos) {
+	/*int gridX = (int)((pos.x + 1) / Chunk::CHUNK_SIZE);
+	int gridY = (int)((pos.y + 1) / Chunk::CHUNK_SIZE);
+	int gridZ = (int)((pos.z + 1) / Chunk::CHUNK_SIZE);*/
 
-	if (posX <= -0.5f)
-		gridX -= 1;
-	if (posZ <= -0.5f)
-		gridZ -= 1;
+	ChunkCoord gridCoord((pos + glm::vec3(1.0)) / ((float)Chunk::CHUNK_SIZE));
 
-	return GetChunk(gridX, gridZ);
+	return GetChunk(gridCoord);
 }
 
 utils::NoiseMap ChunkManager::GetHeightMap() {
 	return m_heightMap;
 }
 
-Chunk* ChunkManager::LoadChunk(glm::ivec2 pos) {
-	glm::ivec2 chunkPos = pos;
-	pos *= Chunk::CHUNK_SIZE;
+Chunk* ChunkManager::LoadChunk(ChunkCoord coord) {
+	coord *= Chunk::CHUNK_SIZE;
 
 	utils::NoiseMap heightMap;
 	utils::NoiseMapBuilderPlane heightMapBuilder;
 	heightMapBuilder.SetSourceModule(m_noiseModule);
 	heightMapBuilder.SetDestNoiseMap(heightMap);
 	heightMapBuilder.SetDestSize(Chunk::CHUNK_SIZE, Chunk::CHUNK_SIZE);
-	heightMapBuilder.SetBounds(pos.x, pos.x + Chunk::CHUNK_SIZE - 1, pos.y, pos.y + Chunk::CHUNK_SIZE - 1);
+	heightMapBuilder.SetBounds(coord.x, coord.x + Chunk::CHUNK_SIZE - 1, coord.z, coord.z + Chunk::CHUNK_SIZE - 1);
 	heightMapBuilder.Build();
 
 	Chunk* chunk = new Chunk(this);

@@ -2,28 +2,33 @@
 
 #include "chunk.h"
 #include <glm/glm.hpp>
-#include <map>
+#include <unordered_map>
 #include "frustum.h"
 #include "noise.h"
 #include "noiseutils.h"
 
-struct ChunkCoord {
-	int x, z;
+#include <glm/gtx/hash.hpp>
+
+typedef glm::ivec3 ChunkCoord;
+
+const size_t NUM_CHUNKS_Y = 32;
+
+/*inline bool const operator==(const ChunkCoord_t& l, const ChunkCoord_t& r) {
+	return l.x == r.x && l.y == r.y && l.z == r.z;
 };
 
-inline bool const operator==(const ChunkCoord& l, const ChunkCoord& r) {
-	return l.x == r.x && l.z == r.z;
-};
-
-inline bool const operator<(const ChunkCoord& l, const ChunkCoord& r) {
+inline bool const operator<(const ChunkCoord_t& l, const ChunkCoord_t& r) {
 	if (l.x < r.x)  return true;
 	if (l.x > r.x)  return false;
+
+	if (l.y < r.y)	return true;
+	if (l.y > r.y)	return false;
 
 	if (l.z < r.z)  return true;
 	if (l.z > r.z)  return false;
 
 	return false;
-};
+};*/
 
 class ChunkManager {
 private:
@@ -40,14 +45,15 @@ private:
 	glm::vec3 m_cameraView;
 	bool m_forceVisibilityUpdate;
 	FrustumG* m_Frustum;
-	std::map<struct ChunkCoord, Chunk*> m_chunkMap;
+	std::unordered_map<ChunkCoord, Chunk*> m_chunkMap;
+	ChunkCoord m_lastCoord;
 	
 	noise::module::Perlin m_noiseModule;
 	noise::module::Perlin m_noiseModule2;
 	noise::module::Perlin m_noiseModule3;
 	utils::NoiseMap m_heightMap;
 
-	void UpdateVisibility(int gridX, int gridZ);
+	void UpdateVisibility(ChunkCoord coord);
 
 	ImprovedCombinedNoise* noise1;
 	ImprovedCombinedNoise* noise2;
@@ -65,11 +71,14 @@ public:
 	void UpdateVisibilityList(glm::vec3 cameraPosition);
 	void UpdateRenderList();
 	void Render(Shader shader);
-	Chunk* LoadChunk(glm::ivec2 pos);
+	Chunk* LoadChunk(ChunkCoord coord);
 
-	void CreateChunk(int x, int z);
-	Chunk* GetChunk(int x, int z);
-	Chunk* GetChunkFromPosition(float posX, float posZ);
+	void CreateChunk(ChunkCoord coord);
+	Chunk* GetChunk(ChunkCoord coord);
+	Chunk* GetChunk(int x, int y, int z) {
+		return GetChunk(ChunkCoord(x, y, z));
+	}
+	Chunk* GetChunkFromPosition(glm::vec3 pos);
 	//double GetNoiseValue(int x, int z);
 	utils::NoiseMap GetHeightMap();
 };

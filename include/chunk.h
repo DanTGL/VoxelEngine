@@ -5,6 +5,8 @@
 #include "noiseutils.h"
 #include "noise.h"
 
+#include <glm/glm.hpp>
+
 class ChunkManager;
 
 class Chunk {
@@ -16,7 +18,7 @@ public:
 	void Render(Shader shader);
 
 	void CreateMesh();
-	void CreateCube(float x, float y, float z, bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive);
+	void CreateCube(uint8_t x, uint8_t y, uint8_t z, bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive);
 
 	void SetupSphere();
 	void SetupLandscape(ImprovedCombinedNoise* noise1, ImprovedCombinedNoise* noise2, ImprovedOctaveNoise* noise3);
@@ -33,13 +35,14 @@ public:
 	bool IsLoaded();
 	bool IsSetup();
 
-	void SetPosition(glm::vec2 pos);
-	void SetGrid(int gridX, int gridZ);
+	void SetPosition(glm::vec3 pos);
+	void SetGrid(glm::ivec3 coord);
 
 	int GetX();
+	int GetY();
 	int GetZ();
 
-	glm::vec2 GetPosition();
+	glm::vec3 GetPosition();
 
 	static const int CHUNK_SIZE = 16;
 	static const int WORLD_HEIGHT = 256;
@@ -49,7 +52,8 @@ private:
 	bool m_emptyChunk;
 	bool m_loaded;
 	bool m_setup;
-	glm::vec2 gridPos, worldPos;
+	glm::ivec3 gridPos;
+	glm::vec3 worldPos;
 	BlockInstance* blocks;
 	ChunkManager* m_pManager;
 };

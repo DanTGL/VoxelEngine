@@ -49,16 +49,16 @@ void Mesh::setupMesh() {
 
 	// vertex positions
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+	glVertexAttribPointer(0, sizeof(ChunkBlockPos_t), GL_BYTE, GL_FALSE, sizeof(Vertex), (void*)0);
 	// vertex normals
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 	// vertex texture coords
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Layer));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Layer));
 
 	glBindVertexArray(0);
 }
@@ -68,10 +68,9 @@ void Mesh::GetMeshInformation(size_t &numVerts, size_t &numTriangles) {
 	numTriangles = indices.size() / 3;
 }
 
-unsigned int Mesh::AddVertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 texcoord, float layer) {
+unsigned int Mesh::AddVertex(ChunkBlockPos_t pos, glm::vec2 texcoord, float layer) {
 	Vertex vertex;
 	vertex.Position = pos;
-	vertex.Normal = normal;
 	vertex.TexCoords = texcoord;
 	vertex.Layer = layer;
 	vertices.push_back(vertex);

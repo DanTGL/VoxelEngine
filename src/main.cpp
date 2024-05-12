@@ -128,6 +128,13 @@ int main(void) {
 
 	ChunkManager* manager = new ChunkManager(frustum);
 
+	double fps, t;
+	double t0 = glfwGetTime();
+	int frames = 0;
+
+
+	char title_string[15];
+
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window)) {
 		glm::vec3 cameraDir = cameraPos + cameraFront;
@@ -148,6 +155,18 @@ int main(void) {
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		manager->Render(myShader);
+		
+		t = glfwGetTime();
+
+		if ((t - t0) > 1.0 || frames == 0) {
+			fps = (double) frames / (t - t0);
+			sprintf_s(title_string, "FPS: %.1f", fps);
+			glfwSetWindowTitle(window, title_string);
+			t0 = t;
+			frames = 0;
+		}
+
+		frames++;
 
 		// Swap front and back buffers
 		glfwSwapBuffers(window);
