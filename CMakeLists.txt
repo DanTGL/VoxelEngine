@@ -11,13 +11,10 @@ file (GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp" )
 
 add_executable(VoxelEngine ${SOURCES})
 
-add_custom_command(TARGET VoxelEngine PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/assets/ $<TARGET_FILE_DIR:VoxelEngine>/assets/)
-
+set (EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR})
 
 target_include_directories(VoxelEngine
-    PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include"                          
+    PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 
 find_package(OpenGL REQUIRED)

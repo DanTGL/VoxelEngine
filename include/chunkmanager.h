@@ -7,6 +7,7 @@
 #include "noise.h"
 #include "noiseutils.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
 typedef glm::ivec3 ChunkCoord;

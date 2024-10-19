@@ -2,3 +2,7 @@ vcpkg/
 .vcpkg/
 
 build/
+*.dll
+*.exe
+*.pdb
+compile_commands.json
