@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <noise\noise.h>
+#include <noise/noise.h>
 #include "random.h"
 
 class Noise {

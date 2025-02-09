@@ -9,7 +9,7 @@ private:
 	};
 
 public:
-	static enum { OUTSIDE = 0, INTERSECT, INSIDE };
+	enum { OUTSIDE = 0, INTERSECT, INSIDE };
 	Plane pl[6];
 	glm::vec3 ntl, ntr, nbl, nbr, ftl, ftr, fbl, fbr;
 	float nearD, farD, ratio, angle, tang;
