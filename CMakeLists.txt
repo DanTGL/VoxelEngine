@@ -3,10 +3,10 @@ cmake_minimum_required (VERSION 3.12.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 IF (WIN32)
-	include(automate-vcpkg.cmake)
+  include(automate-vcpkg.cmake)
 
-	vcpkg_bootstrap()
-	vcpkg_install_packages(glfw3 libnoise glm glew)
+  vcpkg_bootstrap()
+  vcpkg_install_packages(sdl3 libnoise glm glew)
 
 ENDIF()
 
@@ -22,15 +22,15 @@ add_custom_command(TARGET VoxelEngine PRE_BUILD
 
 
 target_include_directories(VoxelEngine
-    PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include"                          
+    PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 #find_package(unofficial-noise CONFIG REQUIRED)
 #find_package(unofficial-noiseutils CONFIG REQUIRED)
 
-target_link_libraries(VoxelEngine PRIVATE ${OPENGL_LIBRARIES} GLEW::glew glfw glm::glm noise)
+target_link_libraries(VoxelEngine PRIVATE ${OPENGL_LIBRARIES} GLEW::glew SDL3::SDL3 glm::glm noise)
 

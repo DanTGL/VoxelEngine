@@ -128,8 +128,6 @@ GLuint loadTextureArray(const char *imagepath) {
   GLsizei tiles_x = (width / tile_w), tiles_y = (height / tile_h),
           tile_count = tiles_x * tiles_y;
 
-  printf("%d", tile_count);
-
   glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &tileset);
 
   glBindTexture(GL_TEXTURE_2D_ARRAY, tileset);

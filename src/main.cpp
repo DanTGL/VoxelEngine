@@ -1,56 +1,51 @@
 #include "chunk.h"
 #include "chunkmanager.h"
+#include "frustum.h"
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
 
+#define SDL_MAIN_USE_CALLBACKS 1
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+
+// TODO: Remove globals
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action,
-                  int mods) {
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
+ChunkManager *manager = NULL;
+FrustumG *frustum = NULL;
 
-  float cameraSpeed = 10;
+SDL_AppResult key_callback(SDL_KeyboardEvent *event) {
+  const float cameraSpeed = 10;
 
-  if (key == GLFW_KEY_W && action == GLFW_PRESS)
-    cameraPos += cameraSpeed * cameraFront;
-  if (key == GLFW_KEY_S && action == GLFW_PRESS)
+  if (event->key == SDLK_W && event->type == SDL_EVENT_KEY_DOWN)
     cameraPos -= cameraSpeed * cameraFront;
-  if (key == GLFW_KEY_A && action == GLFW_PRESS)
+  if (event->key == SDLK_S && event->type == SDL_EVENT_KEY_DOWN)
+    cameraPos += cameraSpeed * cameraFront;
+  if (event->key == SDLK_A && event->type == SDL_EVENT_KEY_DOWN)
     cameraPos -=
         glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-  if (key == GLFW_KEY_D && action == GLFW_PRESS)
+  if (event->key == SDLK_D && event->type == SDL_EVENT_KEY_DOWN)
     cameraPos +=
         glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    exit(0);
+  if (event->key == SDLK_ESCAPE && event->type == SDL_EVENT_KEY_DOWN) {
+    return SDL_APP_SUCCESS;
   }
+
+  return SDL_APP_CONTINUE;
 }
-
-float lastX = 400, lastY = 300;
-
-bool firstMouse = true;
 
 float pitch = 0.0f, yaw = 0.0f;
 
-void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
-  if (firstMouse) {
-    lastX = xpos;
-    lastY = ypos;
-    firstMouse = false;
-  }
+static Shader *shader;
 
-  float xoffset = xpos - lastX;
-  float yoffset = lastY - ypos;
-  lastX = xpos;
-  lastY = ypos;
-
+void mouse_callback(SDL_MouseMotionEvent *event) {
+  float xoffset = event->xrel;
+  float yoffset = event->yrel;
   float sensitivity = 0.05;
   xoffset *= sensitivity;
   yoffset *= sensitivity;
@@ -74,100 +69,86 @@ void error_callback(int error, const char *description) {
   fprintf(stderr, "Error: %s\n", description);
 }
 
-int main(void) {
-  GLFWwindow *window;
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
-  glfwSetErrorCallback(error_callback);
-
-  // Initialize the library
-  if (!glfwInit())
-    return -1;
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-  glfwWindowHint(GLFW_DOUBLEBUFFER, 1);
-  glfwWindowHint(GLFW_DEPTH_BITS, 24);
-
-  // Create a windowed mode and its OpenGL context
-  window = glfwCreateWindow(640, 480, "Hello World!", NULL, NULL);
-  if (!window) {
-    glfwTerminate();
-    return -1;
+  if (!SDL_Init(SDL_INIT_VIDEO)) {
+    return SDL_APP_FAILURE;
   }
 
-  // Make the windows context current
-  glfwMakeContextCurrent(window);
-
-  glfwSwapInterval(1);
-
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-  glfwSetKeyCallback(window, key_callback);
-  glfwSetCursorPosCallback(window, mouse_callback);
+  if (!SDL_CreateWindowAndRenderer("Voxel Engine", 640, 480, SDL_WINDOW_OPENGL,
+                                   &window, &renderer)) {
+    SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
 
   if (glewInit() != GLEW_OK) {
-    std::cout << "Error!" << std::endl;
+    SDL_Log("Couldn't initialize GLEW");
+    return SDL_APP_FAILURE;
   }
 
-  // TODO: Figure this out.
-  // Fixes viewport and framebuffer having different sizes on linux.
-  int w, h;
-  glfwGetFramebufferSize(window, &w, &h);
-  glViewport(0, 0, w, h);
+  shader = new Shader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
+  frustum = new FrustumG();
+  manager = new ChunkManager(frustum);
+
+  SDL_GL_SetSwapInterval(1);
+  glClearColor(0.0f, 0.2f, 0.8f, 1.0f);
+  SDL_CaptureMouse(true);
+
+  SDL_SetWindowRelativeMouseMode(window, true);
 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
+  return SDL_APP_CONTINUE;
+}
 
-  Shader myShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
-
-  glm::mat4 model = glm::mat4(1.0f);
-  model = glm::rotate(model, glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-  model = glm::translate(model, glm::vec3(0.0f, -20.0f, 0.0f));
-
-  glm::mat4 view = glm::mat4(1.0f);
-  view = glm::translate(view, glm::vec3(0.0f, 0.0f, -50.0f));
-
-  glm::mat4 projection;
-  projection =
-      glm::perspective(glm::radians(45.0f), 640.0f / 480.0f, 0.1f, 100.0f);
-
-  FrustumG *frustum = new FrustumG();
-
-  ChunkManager *manager = new ChunkManager(frustum);
-
-  glClearColor(0.0f, 0.2f, 0.8f, 1.0f);
-
-  // Loop until the user closes the window
-  while (!glfwWindowShouldClose(window)) {
-    glm::vec3 cameraDir = cameraPos + cameraFront;
-
-    // Render here
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    myShader.use();
-    view = glm::lookAt(cameraPos, cameraDir, cameraUp);
-    frustum->setCamDef(cameraPos, cameraDir, cameraUp);
-
-    manager->Update(0, cameraPos, cameraDir);
-
-    int viewLoc = glGetUniformLocation(myShader.ID, "view");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-    int projectionLoc = glGetUniformLocation(myShader.ID, "projection");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-    manager->Render(myShader);
-
-    // Swap front and back buffers
-    glfwSwapBuffers(window);
-
-    // Poll for and process events
-    glfwPollEvents();
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
+  switch (event->type) {
+  case SDL_EVENT_QUIT:
+    return SDL_APP_SUCCESS;
+  case SDL_EVENT_KEY_DOWN:
+    return key_callback((SDL_KeyboardEvent *)event);
+  case SDL_EVENT_MOUSE_MOTION:
+    mouse_callback((SDL_MouseMotionEvent *)event);
+    break;
   }
 
-  glUseProgram(0);
-  glfwDestroyWindow(window);
+  return SDL_APP_CONTINUE;
+}
 
-  glfwTerminate();
-  return 0;
+SDL_AppResult SDL_AppIterate(void *appstate) {
+  glm::vec3 cameraDir = cameraPos + cameraFront;
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  shader->use();
+  const glm::mat4 projection =
+      glm::perspective(glm::radians(45.0f), 640.0f / 480.0f, 0.1f, 100.0f);
+  glm::mat4 view = glm::lookAt(cameraDir, cameraPos, cameraUp);
+  frustum->setCamDef(cameraPos, cameraDir, cameraUp);
+
+  manager->Update(0, cameraPos, cameraDir);
+
+  int viewLoc = glGetUniformLocation(shader->ID, "view");
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+  int projectionLoc = glGetUniformLocation(shader->ID, "projection");
+  glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+  manager->Render(*shader);
+
+  SDL_GL_SwapWindow(window);
+  return SDL_APP_CONTINUE;
+}
+
+void SDL_AppQuit(void *appstate, SDL_AppResult result) {
+  if (result == SDL_APP_FAILURE) {
+    SDL_Log("Error: %s", SDL_GetError());
+  }
+
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+
+  delete shader;
+  delete manager;
+  delete frustum;
 }
